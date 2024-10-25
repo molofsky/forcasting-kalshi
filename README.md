@@ -4,3 +4,5 @@ Machine Learning (CS229), Autumn 2024 final project for @StiopaPopa and @molofsk
 
 ## File Structure
 - `documents` contains technical information describing the project
+- `models` contains the models used to generate predictions for a bet
+- `datasets` contains dataset processing for running our models
