@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, mean_absolute_percentage_error, explained_variance_score
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, HistGradientBoostingRegressor
 from catboost import CatBoostRegressor
 
 df = pd.read_csv("data/kalshi.csv")
@@ -54,6 +54,16 @@ gb = GradientBoostingRegressor(
 gb.fit(X_train, y_train)
 y_pred_gb = gb.predict(X_test)
 evaluate_model("Gradient Boosting", y_test, y_pred_gb, additional_metrics=True)
+
+hgb = HistGradientBoostingRegressor(
+    l2_regularization= 0.9385527090157502,
+    learning_rate=0.0010778765841014328,
+    max_iter=376,
+    max_leaf_nodes=15
+)
+hgb.fit(X_train, y_train)
+y_pred_hgb = hgb.predict(X_test)
+evaluate_model("HistGradient Boosting", y_test, y_pred_hgb, additional_metrics=True)
 
 cat = CatBoostRegressor(
     depth=4,
