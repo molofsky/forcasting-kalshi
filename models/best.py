@@ -20,9 +20,20 @@ y = df['target']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 def evaluate_model(name, y_true, y_pred, additional_metrics=False):
-    mse = mean_squared_error(y_true, y_pred)
+    n = len(y_true)
+    _ , p = X_test.shape
+
+    residuals = y_true - y_pred
+    mse = np.sum(residuals ** 2) / n
     rmse = np.sqrt(mse)
-    r2 = r2_score(y_true, y_pred)
+    ssr = np.sum(residuals ** 2)
+    se = np.sqrt(ssr / (n - p - 1))
+    r2 = r2_score(y_true, y_pred) 
+    adj_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+    aic = n * np.log(mse) + 2 * (p + 1)
+    bic = n * np.log(mse) + np.log(n) * (p + 1) 
+    dw = np.sum(np.diff(residuals) ** 2) / ssr 
+
     mae = mean_absolute_error(y_true, y_pred)
     mape = mean_absolute_percentage_error(y_true, y_pred)
     evs = explained_variance_score(y_true, y_pred)
@@ -31,7 +42,13 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
     print("{}:".format(name))
     print("  MSE: {}".format(mse))
     print("  RMSE: {}".format(rmse))
+    print("  Sum of squared residuals: {}".format(ssr))
+    print("  S.E. of regression: {}".format(se))
     print("  R²: {}".format(r2))
+    print("  Adjusted R²: {}".format(adj_r2))
+    print("  Akaike Information Criterion (AIC): {}".format(aic))
+    print("  Schwarz Criterion (BIC): {}".format(bic))
+    print("  Durbin-Watson Statistic: {}".format(dw))
     if additional_metrics:
         print("  MAE: {}".format(mae))
         print("  MAPE: {}".format(mape))
@@ -42,7 +59,7 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 y_pred_lr = lr.predict(X_test)
-evaluate_model("Linear Regression", y_test, y_pred_lr, additional_metrics=True)
+evaluate_model("Linear Regression", y_test, y_pred_lr)
 
 gb = GradientBoostingRegressor(
     subsample=0.5,
@@ -53,7 +70,7 @@ gb = GradientBoostingRegressor(
 )
 gb.fit(X_train, y_train)
 y_pred_gb = gb.predict(X_test)
-evaluate_model("Gradient Boosting", y_test, y_pred_gb, additional_metrics=True)
+evaluate_model("Gradient Boosting", y_test, y_pred_gb)
 
 hgb = HistGradientBoostingRegressor(
     l2_regularization= 0.9385527090157502,
@@ -63,7 +80,7 @@ hgb = HistGradientBoostingRegressor(
 )
 hgb.fit(X_train, y_train)
 y_pred_hgb = hgb.predict(X_test)
-evaluate_model("HistGradient Boosting", y_test, y_pred_hgb, additional_metrics=True)
+evaluate_model("HistGradient Boosting", y_test, y_pred_hgb)
 
 cat = CatBoostRegressor(
     depth=4,
@@ -74,4 +91,4 @@ cat = CatBoostRegressor(
 )
 cat.fit(X_train, y_train)
 y_pred_cat = cat.predict(X_test)
-evaluate_model("CatBoost", y_test, y_pred_cat, additional_metrics=True)
+evaluate_model("CatBoost", y_test, y_pred_cat)

@@ -29,8 +29,8 @@ def main(market_question):
     y_pred = cat.predict(X_test)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(test_dates, y_test, label='Actual values', linestyle='-', marker='s', c='blue')
-    plt.plot(test_dates, y_pred, label='Predicted values', linestyle='-', marker='d', c='red')
+    plt.plot(test_dates[24:], y_test[24:], label='Actual values', linestyle='-', marker='s', c='blue')
+    plt.plot(test_dates[24:], y_pred[24:], label='Predicted values', linestyle='-', marker='d', c='red')
 
     plt.xlabel('Sample period')
     plt.ylabel('Contract prices')
