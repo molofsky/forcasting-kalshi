@@ -37,7 +37,8 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
     mae = mean_absolute_error(y_true, y_pred)
     mape = mean_absolute_percentage_error(y_true, y_pred)
     evs = explained_variance_score(y_true, y_pred)
-    sharpe = np.divide(np.mean(y_pred), np.std(y_pred, ddof=1))
+    actual_sharpe = np.divide(np.mean(y_true), np.std(y_true, ddof=1))
+    pred_sharpe = np.divide(np.mean(y_pred), np.std(y_pred, ddof=1))
     
     print("{}:".format(name))
     print("  MSE: {}".format(mse))
@@ -53,7 +54,8 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
         print("  MAE: {}".format(mae))
         print("  MAPE: {}".format(mape))
         print("  EVS: {}".format(evs))
-    print("  Sharpe Ratio: {}".format(sharpe))
+    print("  Actual Sharpe Ratio: {}".format(actual_sharpe))
+    print("  Predicted Sharpe Ratio: {}".format(pred_sharpe))
     print()
 
 lr = LinearRegression()
