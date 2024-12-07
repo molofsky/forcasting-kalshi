@@ -24,7 +24,7 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
     _ , p = X_test.shape
 
     residuals = y_true - y_pred
-    mse = np.sum(residuals ** 2) / n
+    mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
     ssr = np.sum(residuals ** 2)
     se = np.sqrt(ssr / (n - p - 1))
