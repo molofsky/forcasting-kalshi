@@ -5,8 +5,9 @@ sys.path.insert(0, '/Users/adrianmolofsky/Downloads/CS229-Project/')
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, mean_absolute_percentage_error, explained_variance_score
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import SGDRegressor, LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor, HistGradientBoostingRegressor
 from catboost import CatBoostRegressor
 
@@ -18,6 +19,8 @@ X = df.drop('target', axis=1)
 y = df['target']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
 
 def evaluate_model(name, y_true, y_pred, additional_metrics=False):
     n = len(y_true)
@@ -62,6 +65,11 @@ lr = LinearRegression()
 lr.fit(X_train, y_train)
 y_pred_lr = lr.predict(X_test)
 evaluate_model("Linear Regression", y_test, y_pred_lr)
+
+sgd = SGDRegressor(max_iter=1000, tol=1e-3, random_state=42)
+sgd.fit(scaler.fit_transform(X_train), y_train)
+y_pred_sgd = sgd.predict(scaler.fit_transform(X_test))
+evaluate_model("SGD Regressor", y_test, y_pred_sgd)
 
 gb = GradientBoostingRegressor(
     subsample=0.5,
