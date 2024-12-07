@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, r2_score
 from catboost import CatBoostRegressor
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def main(market_question):
     df = pd.read_csv("data/kalshi.csv")
@@ -28,9 +29,15 @@ def main(market_question):
 
     y_pred = cat.predict(X_test)
 
+    plt.figure(figsize=(12, 10))
+    corr_matrix = X_train.corr()
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+    plt.title('Feature Correlation Heatmap')
+    plt.show()
+
     plt.figure(figsize=(10, 6))
-    plt.plot(test_dates[24:], y_test[24:], label='Actual values', linestyle='-', marker='s', c='blue')
-    plt.plot(test_dates[24:], y_pred[24:], label='Predicted values', linestyle='-', marker='d', c='red')
+    plt.plot(test_dates[:10], y_test, label='Actual values', linestyle='-', marker='s', c='blue')
+    plt.plot(test_dates[:10], y_pred, label='Predicted values', linestyle='-', marker='d', c='red')
 
     plt.xlabel('Sample period')
     plt.ylabel('Contract prices')

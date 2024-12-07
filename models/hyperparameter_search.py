@@ -18,13 +18,17 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from catboost import CatBoostRegressor
+from scipy.stats import uniform, randint
 
 df = pd.read_csv("data/kalshi.csv")
 
 df = df.drop(columns=[col for col in ['market', 'market_question', 'date'] if col in df.columns])
+df = df.dropna()
 
 X = df.drop('target', axis=1)
 y = df['target']
+
+X = X.select_dtypes(include=[np.number])
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -71,86 +75,49 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
     print("  Predicted Sharpe Ratio: {}".format(pred_sharpe))
     print()
 
-# Linear Regression
-lr = LinearRegression()
-lr.fit(X_train_scaled, y_train)
-y_pred_lr = lr.predict(X_test_scaled)
-evaluate_model("Linear Regression", y_test, y_pred_lr)
-
-ridge = Ridge(alpha=1.0)
-ridge.fit(X_train_scaled, y_train)
-y_pred_ridge = ridge.predict(X_test_scaled)
-evaluate_model("Ridge", y_test, y_pred_ridge)
-
-lasso = Lasso(alpha=0.001, max_iter=10000)
-lasso.fit(X_train_scaled, y_train)
-y_pred_lasso = lasso.predict(X_test_scaled)
-evaluate_model("Lasso", y_test, y_pred_lasso)
-
-elastic = ElasticNet(alpha=0.001, l1_ratio=0.5, max_iter=10000)
-elastic.fit(X_train_scaled, y_train)
-y_pred_elastic = elastic.predict(X_test_scaled)
-evaluate_model("ElasticNet", y_test, y_pred_elastic)
-
-bayesian_ridge = BayesianRidge()
-bayesian_ridge.fit(X_train_scaled, y_train)
-y_pred_br = bayesian_ridge.predict(X_test_scaled)
-evaluate_model("Bayesian Ridge", y_test, y_pred_br)
-
-kernel_ridge = KernelRidge(alpha=1.0, kernel='rbf')
-kernel_ridge.fit(X_train_scaled, y_train)
-y_pred_kr = kernel_ridge.predict(X_test_scaled)
-evaluate_model("Kernel Ridge", y_test, y_pred_kr)
-
-# SVR with Hyperparameter Tuning
-svr_params = {
-    'C': np.logspace(-3, 2, 10),
-    'epsilon': np.linspace(0, 0.1, 5),
-    'gamma': ['scale', 'auto']
-}
-svr_model = SVR(kernel='rbf')
-svr_search = RandomizedSearchCV(svr_model, svr_params, n_iter=10, cv=3, random_state=42, scoring='neg_mean_squared_error', n_jobs=-1)
-svr_search.fit(X_train_scaled, y_train)
-best_svr = svr_search.best_estimator_
-y_pred_svr = best_svr.predict(X_test_scaled)
-print("Best SVR Params:", svr_search.best_params_)
-evaluate_model("SVR", y_test, y_pred_svr)
-
-rf = RandomForestRegressor(n_estimators=200, max_depth=5, random_state=42)
-rf.fit(X_train, y_train)
-y_pred_rf = rf.predict(X_test)
-evaluate_model("Random Forest", y_test, y_pred_rf)
-
-et = ExtraTreesRegressor(n_estimators=200, random_state=42)
-et.fit(X_train, y_train)
-y_pred_et = et.predict(X_test)
-evaluate_model("Extra Trees Regressor", y_test, y_pred_et)
-
-sgd = SGDRegressor(max_iter=1000, tol=1e-3, random_state=42)
-sgd.fit(X_train_scaled, y_train)
-y_pred_sgd = sgd.predict(X_test_scaled)
-evaluate_model("SGD Regressor", y_test, y_pred_sgd)
-
 gb_params = {
-    'n_estimators': [100, 200, 300],
-    'learning_rate': [0.001, 0.01, 0.1],
-    'max_depth': [3, 5, 7],
-    'subsample': [0.5, 0.75, 1.0]
+    'n_estimators': randint(100, 500),
+    'learning_rate': uniform(0.001, 0.1),
+    'max_depth': randint(3, 10),
+    'subsample': uniform(0.5, 0.5)
 }
 gb_model = GradientBoostingRegressor(random_state=42)
-gb_search = RandomizedSearchCV(gb_model, gb_params, n_iter=10, cv=3, random_state=42, scoring='neg_mean_squared_error', n_jobs=-1)
+gb_search = RandomizedSearchCV(
+    gb_model, gb_params, n_iter=20, cv=3, scoring='neg_mean_squared_error', random_state=42, n_jobs=-1
+)
 gb_search.fit(X_train, y_train)
 best_gb = gb_search.best_estimator_
 y_pred_gb = best_gb.predict(X_test)
 print("Best Gradient Boosting Params:", gb_search.best_params_)
 evaluate_model("Gradient Boosting", y_test, y_pred_gb)
 
-cat = CatBoostRegressor(iterations=200, learning_rate=0.01, depth=5, random_state=42, verbose=0)
-cat.fit(X_train, y_train)
-y_pred_cat = cat.predict(X_test)
-evaluate_model("CatBoost", y_test, y_pred_cat)
+sgd_params = {
+    'alpha': uniform(1e-5, 1e-2),
+    'eta0': uniform(1e-4, 0.1),
+    'penalty': ['l2', 'l1', 'elasticnet'],
+    'max_iter': [1000, 2000, 3000]
+}
+sgd_model = SGDRegressor(random_state=42)
+sgd_search = RandomizedSearchCV(
+    sgd_model, sgd_params, n_iter=20, cv=3, scoring='neg_mean_squared_error', random_state=42, n_jobs=-1
+)
+sgd_search.fit(X_train_scaled, y_train)
+best_sgd = sgd_search.best_estimator_
+y_pred_sgd = best_sgd.predict(X_test_scaled)
+print("Best SGD Regressor Params:", sgd_search.best_params_)
+evaluate_model("SGD Regressor", y_test, y_pred_sgd)
 
-mlp = MLPRegressor(hidden_layer_sizes=(50,50), alpha=0.001, learning_rate_init=0.001, max_iter=1000, random_state=42)
-mlp.fit(X_train_scaled, y_train)
-y_pred_mlp = mlp.predict(X_test_scaled)
-evaluate_model("MLPRegressor", y_test, y_pred_mlp)
+cat_params = {
+    'iterations': randint(100, 500),
+    'learning_rate': uniform(0.001, 0.1),
+    'depth': randint(3, 10)
+}
+cat_model = CatBoostRegressor(random_state=42, verbose=0)
+cat_search = RandomizedSearchCV(
+    cat_model, cat_params, n_iter=20, cv=3, scoring='neg_mean_squared_error', random_state=42, n_jobs=-1
+)
+cat_search.fit(X_train, y_train)
+best_cat = cat_search.best_estimator_
+y_pred_cat = best_cat.predict(X_test)
+print("Best CatBoost Params:", cat_search.best_params_)
+evaluate_model("CatBoost", y_test, y_pred_cat)

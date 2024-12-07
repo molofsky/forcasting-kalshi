@@ -64,7 +64,7 @@ def evaluate_model(name, y_true, y_pred, additional_metrics=False):
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 y_pred_lr = lr.predict(X_test)
-evaluate_model("Linear Regression", y_test, y_pred_lr)
+evaluate_model("Linear Regression", y_test, y_pred_lr, additional_metrics=True)
 
 sgd = SGDRegressor(max_iter=1000, tol=1e-3, random_state=42)
 sgd.fit(scaler.fit_transform(X_train), y_train)
@@ -80,7 +80,7 @@ gb = GradientBoostingRegressor(
 )
 gb.fit(X_train, y_train)
 y_pred_gb = gb.predict(X_test)
-evaluate_model("Gradient Boosting", y_test, y_pred_gb)
+evaluate_model("Gradient Boosting", y_test, y_pred_gb, additional_metrics=True)
 
 hgb = HistGradientBoostingRegressor(
     l2_regularization= 0.9385527090157502,
@@ -90,7 +90,7 @@ hgb = HistGradientBoostingRegressor(
 )
 hgb.fit(X_train, y_train)
 y_pred_hgb = hgb.predict(X_test)
-evaluate_model("HistGradient Boosting", y_test, y_pred_hgb)
+evaluate_model("HistGradient Boosting", y_test, y_pred_hgb, additional_metrics=True)
 
 cat = CatBoostRegressor(
     depth=4,
@@ -101,4 +101,4 @@ cat = CatBoostRegressor(
 )
 cat.fit(X_train, y_train)
 y_pred_cat = cat.predict(X_test)
-evaluate_model("CatBoost", y_test, y_pred_cat)
+evaluate_model("CatBoost", y_test, y_pred_cat, additional_metrics=True)
