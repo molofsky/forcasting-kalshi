@@ -1,4 +1,4 @@
-# CS229 Project
+# Predicting Hourly Price Changes in Prediction Market Contracts
 
 Machine Learning (CS229), Autumn 2024 final project for @StiopaPopa and @molofsky
 
