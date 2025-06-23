@@ -2,8 +2,8 @@
 
 A comparison of quantitative modeling techniques for risk management and real-time, high-frequency trading, exploring whether the innately sentiment- and news-driven prices of event contracts can be accurately predicted with machine learning techniques purely on the basis of timeprice data. 
 
-Machine Learning (CS229), Autumn 2024 final project by @StiopaPopa and @molofsky
+Machine Learning (CS229), Autumn 2024 final project by Steve Mendeleev and Adrian Molofsky
 
 ## File Structure
-- `models` contains models for predict daily price changes
-- `data `: contains dataset processing and feature engineering for high-volume Kalshi event contracts
+- `models`: contains models for predict daily price changes
+- `data`: contains dataset processing and feature engineering for high-volume Kalshi event contracts
