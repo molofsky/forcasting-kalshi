@@ -5,5 +5,5 @@ A comparison of quantitative modeling techniques for risk management and real-ti
 Machine Learning (CS229), Autumn 2024 final project by Steve Mendeleev and Adrian Molofsky
 
 ## File Structure
-- `models`: contains models for predict daily price changes
+- `models`: contains models for predicting daily price changes
 - `data`: contains dataset processing and feature engineering for high-volume Kalshi event contracts
